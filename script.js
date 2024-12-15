@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from "lil-gui";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 /**
  * Base
@@ -35,6 +36,32 @@ const object3 = new THREE.Mesh(
 object3.position.x = 2;
 
 scene.add(object1, object2, object3);
+
+/**
+ * Model
+ */
+
+let model = null;
+const gltfLoader = new GLTFLoader();
+gltfLoader.load("static/models/Duck/glTF-Binary/Duck.glb", (gltf) => {
+  // console.log("loaded");
+  model = gltf.scene;
+  model.position.y = -1.2;
+  scene.add(model);
+});
+
+/**
+ * Lights
+ */
+
+// ambient light
+const ambientLight = new THREE.AmbientLight("#ffffff", 0.9);
+scene.add(ambientLight);
+
+// directional light
+const directionalLigth = new THREE.DirectionalLight("#ffffff", 0.9);
+directionalLigth.position.set(1, 2, 3);
+scene.add(directionalLigth);
 
 /**
  * Raycaster
@@ -147,6 +174,16 @@ const tick = () => {
     }
 
     currentIntersect = null;
+  }
+
+  if (model) {
+    const modelIntersects = raycaster.intersectObject(model);
+    // console.log(modelIntersects);
+    if (modelIntersects.length) {
+      model.scale.set(1.2, 1.2, 1.2);
+    } else {
+      model.scale.set(1, 1, 1);
+    }
   }
 
   // Animate objects
